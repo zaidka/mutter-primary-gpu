@@ -4,7 +4,6 @@ const aggregateMenu = imports.ui.main.panel.statusArea.aggregateMenu;
 const sessionMode = imports.ui.main.sessionMode;
 
 let indicator = null;
-let sessionModeSignal = null;
 
 function enable() {
   if (indicator) disable();
@@ -19,21 +18,12 @@ function enable() {
   indicator = new Indicator();
   aggregateMenu._indicators.add_child(indicator);
   aggregateMenu.menu.addMenuItem(indicator.menu, index + 1);
-
-  indicator.menu.setSensitive(!sessionMode.isLocked);
-  sessionModeSignal = sessionMode.connect("updated", () => {
-    indicator.menu.setSensitive(!sessionMode.isLocked);
-  });
 }
 
 function disable() {
-  // This extension remains enabled in unlock-dialog mode as it may be helpful
-  // for the user to be able to tell which GPU is primary from within the lock
-  // screen, since different sessions may have different primary GPU. The menu
-  // gets disabled in unlock-dialog though.
-  if (!indicator) return;
-  sessionMode.disconnect(sessionModeSignal);
-  aggregateMenu._indicators.remove_child(indicator);
-  indicator.menu.destroy();
-  indicator = null;
+  if (indicator) {
+    aggregateMenu._indicators.remove_child(indicator);
+    indicator.menu.destroy();
+    indicator = null;
+  }
 }
