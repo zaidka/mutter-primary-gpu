@@ -36,7 +36,7 @@ function exec(command, envVars = {}) {
 }
 
 function getActiveGpu() {
-  const cmd = "/usr/libexec/gnome-control-center-print-renderer";
+  const cmd = getPrintRendererPath();
   return exec(cmd);
 }
 
@@ -49,9 +49,24 @@ async function getRenderer(device) {
   const regex = /^ID_PATH_TAG=([a-z0-9_-]+)\n?$/;
   const r = regex.exec(property);
   if (!r) return null;
-  return exec("/usr/libexec/gnome-control-center-print-renderer", {
+  return exec(getPrintRendererPath(), {
     DRI_PRIME: r[1],
   });
+}
+
+function getPrintRendererPath() {
+  const knownPaths = [
+    "/usr/libexec/gnome-control-center-print-renderer",
+    "/usr/lib/gnome-control-center-print-renderer",
+  ];
+
+  for (const path of knownPaths) {
+    if (File.new_for_path(path).query_exists(null)) {
+      return path
+    }
+  }
+
+  throw new Error("Unable to find `gnome-control-center-print-renderer` in any known location.")
 }
 
 function getGpus() {
