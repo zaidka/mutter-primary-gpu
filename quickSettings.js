@@ -13,7 +13,7 @@ class FeatureMenuToggle extends QuickSettings.QuickMenuToggle {
         super._init({
             label: 'GPU',
             iconName: 'video-display-symbolic',
-            toggleMode: true,
+            toggleMode: false,
         });
         
         this.menu.setHeader('video-display-symbolic', 'Primary GPU');
