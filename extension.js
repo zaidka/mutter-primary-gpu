@@ -1,29 +1,20 @@
 const currentExtension = imports.misc.extensionUtils.getCurrentExtension();
-const { Indicator } = currentExtension.imports.primaryGpu;
-const aggregateMenu = imports.ui.main.panel.statusArea.aggregateMenu;
-const sessionMode = imports.ui.main.sessionMode;
+const Config = imports.misc.config;
+const [major] = Config.PACKAGE_VERSION.split('.').map(s => Number(s));
 
-let indicator = null;
-
-function enable() {
-  if (indicator) disable();
-  const lookup = [aggregateMenu._power.menu, aggregateMenu._powerProfiles.menu];
-
-  const menuItems = aggregateMenu.menu._getMenuItems();
-  let index = 0;
-  for (let i = 0; i < menuItems.length; i++) {
-    if (lookup.includes(menuItems[i])) index = i;
+function init() {
+  // 
+  if (major < 43) {
+    // Import here to avoid incompatible imports for other gnome versions
+    const { PrimaryGpuAggregateMenu } = currentExtension.imports.aggregateMenu;
+    // Return extension with gnome 42 support
+    return new PrimaryGpuAggregateMenu();
   }
 
-  indicator = new Indicator();
-  aggregateMenu._indicators.add_child(indicator);
-  aggregateMenu.menu.addMenuItem(indicator.menu, index + 1);
-}
+  const { PrimaryGpuQuickSettings } = currentExtension.imports.quickSettings;
+    // Return extension with gnome 42 support
+  return new PrimaryGpuQuickSettings();
 
-function disable() {
-  if (indicator) {
-    aggregateMenu._indicators.remove_child(indicator);
-    indicator.menu.destroy();
-    indicator = null;
-  }
+  // Unsupported gnome shell version
+  // TODO: Throw error
 }
