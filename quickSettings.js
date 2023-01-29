@@ -29,11 +29,17 @@ class FeatureMenuToggle extends QuickSettings.QuickMenuToggle {
         const primary = getPrimaryGpu();
         if (primary) gpus.add(primary);
         const proms = [...gpus].map(async (gpu) => {
-          const label = await getRenderer(gpu);
+          let label = `/dev/dri/${gpu}`;
+
+          try {
+            label = await getRenderer(gpu);
+          } catch (e) {
+            logError(e);
+          }
 
           if(gpu === primary) this.label = label;
 
-          const item = new PopupMenu.PopupMenuItem(label ?? `/dev/dri/${gpu}`);
+          const item = new PopupMenu.PopupMenuItem(label);
           item.setOrnament(
             gpu === primary ? PopupMenu.Ornament.DOT : PopupMenu.Ornament.NONE
           );
